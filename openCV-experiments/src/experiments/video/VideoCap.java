@@ -1,5 +1,9 @@
 package experiments.video;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -23,13 +27,23 @@ public class VideoCap {
         cap.open(0);
     } 
  
-    BufferedImage getOneFrame() {
+    BufferedImage getOneFrame() throws IOException {
         cap.read(mat2Img.mat);
         detectEmotion(mat2Img.mat);
+//        detectEmotionFromMSAPI(mat2Img.mat);
         return mat2Img.getImage(mat2Img.mat);
     }
     
-	private void detectEmotion(Mat mat) {
+	private void detectEmotionFromMSAPI(Mat mat) throws IOException {
+		BufferedImage image = mat2Img.getImage(mat);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "jpg", baos);
+		baos.flush();
+		byte[] imageBytes = baos.toByteArray();
+		
+	}
+
+	private void detectEmotion(Mat mat) throws IOException {
 		if(mat == null) return;
         // Create a face detector from the cascade file in the resources
         // directory.
@@ -43,12 +57,17 @@ public class VideoCap {
         
         System.out.println(String.format("Detected %s faces",
                 faceDetections.toArray().length));
-
+		
+        DetectedFaces faces = new DetectedFaces();
+		faces.setImageFrame(mat2Img.getImage(mat));
+		
         // Draw a bounding box around each face.
         for (Rect rect : faceDetections.toArray()) {
             Core.rectangle(mat, new Point(rect.x, rect.y), new Point(rect.x
                     + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+        
+            faces.addDetectedFace(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
         }
-
+        System.out.println("\nDetected Face Rectanges : " + faces.toString());
 	}
 }

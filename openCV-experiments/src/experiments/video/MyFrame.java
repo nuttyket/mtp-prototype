@@ -2,6 +2,7 @@ package experiments.video;
 
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -48,7 +49,12 @@ public class MyFrame extends JFrame {
  
     public void paint(Graphics g){
         g = contentPane.getGraphics();
-        g.drawImage(videoCap.getOneFrame(), 0, 0, this);
+        try {
+			g.drawImage(videoCap.getOneFrame(), 0, 0, this);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
  
     class MyThread extends Thread{
